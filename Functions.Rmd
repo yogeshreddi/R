@@ -1,0 +1,202 @@
+---
+title: "FUNCTIONS"
+author: "Yogesh Gongati"
+date: "October 12, 2015"
+output: html_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+Function to fetch the missing value details in a dataset
+
+```{r}
+columns_with_nas<-function(x){
+  n<-ncol(x)
+  m<-nrow(x)
+  #print(n)
+  c_names<-names(x)
+  col_names=c()
+  na_counts=c()
+  total_count=c()
+  percent_na<-c()
+  for (i in 1:n){
+      #print(i)
+      data.frame(table(!is.na(x[,i])))->tbl
+      col_name<-c_names[i]
+      na_count<-tbl[tbl$Var1==TRUE,][,"Freq"]
+      na_count<-(m-na_count)
+      col_names<-c(col_names,col_name)
+      na_counts<-c(na_counts,na_count)
+      
+      total_count<-c(total_count,m)
+      percent_na<-c(percent_na,round((na_count*100)/m,5))
+      #print(col_name)
+      #print(na_count)
+      #print(na_count/(m*100))
+  }
+  data.f<-cbind(col_names,na_counts,total_count,percent_na)
+  data.f<-data.frame(data.f)
+  data.f
+}
+
+
+```
+
+Function to transfrom 
+```{r}
+
+txfm<-function(x){
+  (x-min(x))/(max(x)-min(x))
+}
+
+bd[,c()]<-lapply(bd, txfm)
+ts(bd)
+
+is.numeric(bd)
+
+lapply(subset(bd,!is.numeric),mean)
+data(lightcars)
+
+pf1<-data.frame(lapply(pf[,sapply(pf,is.numeric)],txfm),pf[,!sapply(pf,is.numeric)])
+
+```
+
+
+Function to check for correlation
+
+```{r}
+
+cor_range<-function(x,limit)
+{
+    col1<-c()
+    col2<-c()
+    corr<-c()
+for (i in 1:ncol(x))
+  {
+  for (j in 1:ncol(x))
+    {
+    if(!is.numeric(x[,j]))
+      {
+    warning("Dataset contains Factor variables, Correlation can only be evaluated for numeric variables") 
+      return(names(x[j]))
+      }
+    else
+      {
+    if(abs(cor(x[,i],x[,j]))>=limit & names(x[i])!=names(x[j])){
+      col1<-c(col1,names(x[i]))
+      col2<-c(col2,names(x[j]))
+      corr<-c(corr,cor(x[,i],x[,j]))
+      }    
+    }
+  }
+}  
+ data.frame(cbind(col1,col2,corr))
+}
+
+```
+
+```{r}
+getwd()
+setwd("E:/yogesh/Data Challenges/Altrex")
+
+dc<-read.csv("Leading_Causes_of_Death_by_ZIP_Code__1999-2013.csv")
+
+library(sp)
+library(maps)
+library(maptools)
+
+# The single argument to this function, pointsDF, is a data.frame in which:
+#   - column 1 contains the longitude in degrees (negative in the US)
+#   - column 2 contains the latitude in degrees
+
+latlong2state <- function(pointsDF) {
+    # Prepare SpatialPolygons object with one SpatialPolygon
+    # per state (plus DC, minus HI & AK)
+        states <- map('state', fill=TRUE, col="transparent", plot=FALSE)
+    IDs <- sapply(strsplit(states$names, ":"), function(x) x[1])
+    states_sp <- map2SpatialPolygons(states, IDs=IDs,
+                     proj4string=CRS("+proj=longlat +datum=wgs84"))
+    
+    # Convert pointsDF to a SpatialPoints object 
+    pointsSP <- SpatialPoints(pointsDF, 
+                    proj4string=CRS("+proj=longlat +datum=wgs84"))
+
+    # Use 'over' to get _indices_ of the Polygons object containing each point 
+    indices <- over(pointsSP, states_sp)
+    # Return the state names of the Polygons object containing each point
+    stateNames <- sapply(states_sp@polygons, function(x) x@ID)
+    stateNames[indices]
+}
+
+
+
+
+```
+
+
+
+```{r}
+
+setwd("E:/yogesh/Data Challenges/Driven data")
+bd<-read.csv("bd_training.csv")
+
+names(bd)<-c("X","MLD","NOD","TVD","MFD","DONATED")
+
+class_table<-function(x){
+  class_name<-c()
+  column_name<-c()
+  for (i in 1:ncol(x)){
+    if(is.numeric(x[,i])){
+    class_name<-c(class_name,"numeric")
+    column_name<-c(column_name,names(x[i]))  
+    }
+    
+    else
+      {
+    class_name<-c(class_name,"factor")
+    column_name<-c(column_name,names(x[i]))
+    }
+    }
+data.frame(column_name,class_name)
+  }
+
+class_table(bd)
+
+```
+
+
+```{r}
+
+
+df <- data.frame(a = c(1:4, 1:4), 
+                 b = c(4:1, 4:1), 
+                 d = LETTERS[1:8])
+
+
+df[!duplicated(df[c("a", "b")]),]
+
+no_redundancy<- function(df,dupi){
+  df$count<-NA
+  for (z in 1:length(dupi)){
+     for (i in 1:nrow(df)){
+     n=1
+        for (j in 1:nrow(df)){
+          if(df[dupi[z]][i,]==df[dupi[z]][j,])
+            {
+            df[j,"count"]<-n
+            n<-n+1
+            }
+    }     
+   } 
+  }
+  df<-subset(df,df$count==1)
+  df$count<-NULL
+  df
+}
+
+
+new_df<-no_redundancy(df,c("a","b"))
+```
+

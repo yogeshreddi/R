@@ -1,4 +1,4 @@
-# R Assignment 1 : 08/31/2016
+# R Basics and visualizations
 # Author : Venkata Gongati , vyg14001
 
 # Question 1

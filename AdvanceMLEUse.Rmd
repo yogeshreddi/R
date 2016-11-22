@@ -1,6 +1,6 @@
 ---
-title: "R Assignment 9"
-author: "VenkataYogeshGongati"
+title: "Regression USING MLE"
+author: "YogeshGongati"
 date: "November 20, 2016"
 output: word_document
 ---
